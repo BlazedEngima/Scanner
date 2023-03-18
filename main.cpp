@@ -12,7 +12,7 @@ int main(int argc, char const *argv[]) {
     else if (argc == 2) {
         Scanner scanner(argv[1], &tokens);
         scanner.scan();
-        scanner.print("./testcases/result/ans.c1");
+        scanner.print();
     } 
     // Writes the output tokens to file
     else {
