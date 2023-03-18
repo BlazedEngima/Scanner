@@ -1,4 +1,5 @@
 #include "util/scanner.hpp"
+#include <sys/stat.h>
 
 // Main function
 int main(int argc, char const *argv[]) {
@@ -16,6 +17,14 @@ int main(int argc, char const *argv[]) {
     } 
     // Writes the output tokens to file
     else {
+        // Make result directory if it doesnt exist
+        const char *output_dir = "./testcases/result";
+        struct stat sb;
+
+        if (stat(output_dir, &sb) != 0)
+            mkdir(output_dir, 0777);
+        
+        // Write output files to output directory
         std::string output_file = "./testcases/result/ans";
         for (int i = 1; i <= argc - 1; i++) {
             Scanner scanner(argv[i], &tokens);
