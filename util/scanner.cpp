@@ -1,11 +1,13 @@
 #include "scanner.hpp"
 
+// Vector that stores reserved words
 std::vector<std::string> reserved_words {
     "int", "main", "void", "break",
     "do", "else", "if", "while", 
     "return", "scanf", "printf"
 };
 
+// Overloading << operator so it can print out the enum type token_list
 std::ostream & operator<<(std::ostream& out, const token_list token) {
     const char* idx = 0;
 
@@ -56,9 +58,11 @@ std::ostream & operator<<(std::ostream& out, const token_list token) {
     return out << idx;
 }
 
-Scanner::Scanner(std::string file_name) {
+// Constructor for Scanner object, opens file
+Scanner::Scanner(std::string file_name, std::vector<Token> *out_vector) {
     try {
         this->in_file.open(file_name, std::ios::in);
+        this->out_vector = out_vector;
     }
     catch(const std::exception& e) {
         std::cout << "Error, unable to open file" << std::endl;
@@ -66,15 +70,23 @@ Scanner::Scanner(std::string file_name) {
     }
 }
 
+// Destructor for Scanner object, closes file
+Scanner::~Scanner() {
+    this->in_file.close();
+}
+
+// Print function to print to std::cout
 void Scanner::print() {
-    for (auto & elem: this->tokens) {
-        std::cout << "Token: " << elem.token_type << "\t" << "Value: " << elem.value << std::endl;
+    for (auto & elem: *(this->out_vector)) {
+        std::cout << "Token: " << elem.token_type << std::endl;
     }
 }
 
+// Print function to print to output file
 void Scanner::print(std::string file_name) {
     std::ofstream out_file;
 
+    // Open output file
     try {
         out_file.open(file_name, std::ios::out);
     }
@@ -83,53 +95,72 @@ void Scanner::print(std::string file_name) {
         std::cerr << e.what() << '\n';
     }
     
-    for (int i = 0; i < this->tokens.size(); i++) {
-        if (i == this->tokens.size() - 1) {
-            out_file << "Token: " << this->tokens[i].token_type;
-            return;
+    for (int i = 0; i < this->out_vector->size(); i++) {
+        // If last token, ignore adding '\n' 
+        if (i == this->out_vector->size() - 1) {
+            out_file << "Token: " << this->out_vector->at(i).token_type;
+            break;
         }
-        out_file << "Token: " << this->tokens[i].token_type << std::endl;
+        out_file << "Token: " << this->out_vector->at(i).token_type << std::endl;
     }
+
+    out_file.close();
 
 }
 
+// Function that handles reading integers
 Token Scanner::read_number() {
-    this->char_buffer += this->next_char;
+    // Appends first character into character buffer
+    this->char_buffer += this->cur_char;
 
+    // Checks to see if the next character is a digit
     while (isdigit(this->in_file.peek())) {
-        this->in_file >> this->next_char;
-        this->char_buffer += this->next_char;
+        this->in_file >> this->cur_char;
+        this->char_buffer += this->cur_char;
     }
 
+    // Create an integer token
     Token int_token(INT_NUM, char_buffer, char_buffer);
+    // Clear char_buffer
     this->char_buffer = "";
+
     return int_token;
 }
 
+// Function that handles reading strings
 Token Scanner::read_string() {
-    this->char_buffer += this->next_char;
+    // Appends first character into character buffer
+    this->char_buffer += this->cur_char;
     
+    // Checks to see if the next character is an alphanumeric or underscore
     while (isalnum(this->in_file.peek()) || this->in_file.peek() == '_') {
-        this->in_file >> this->next_char;
-        this->char_buffer += this->next_char;  
+        this->in_file >> this->cur_char;
+        this->char_buffer += this->cur_char;  
     }
     
+    // Checks to see if string is a reserved keyword
     for (size_t i = 0; i < reserved_words.size(); i++) {
         if (this->char_buffer == reserved_words[i]) {
+            // Create reserved word token
             Token reserved_word_token(static_cast<token_list>(28 + i), char_buffer);
+            // Clear char_buffer
             this->char_buffer = "";
             return reserved_word_token;
         }
     }
     
+    // Create id token
     Token id_token(ID, char_buffer, char_buffer);
+    // Clear char_buffer
     this->char_buffer = "";
 
     return id_token;
 }
 
-Token Scanner::special_symbol() {
-    switch (this->next_char) {
+// Function that handles special symbols
+Token Scanner::read_special_symbol() {
+    // Checks if current character is a special symbol and returns associated token
+    switch (this->cur_char) {
         case '{': {
             Token special_token(LBRACE, "{");
             return special_token;
@@ -186,8 +217,10 @@ Token Scanner::special_symbol() {
             break;
         }
         case '&': {
+            // Checks next character and move the character pointer
+            // Returns associated token
             if (this->in_file.peek() == '&') {
-                this->in_file >> this->next_char;
+                this->in_file >> this->cur_char;
                 Token special_token(ANDAND, "&&");
                 return special_token;
             }
@@ -198,7 +231,7 @@ Token Scanner::special_symbol() {
         }
         case '|': {
             if (this->in_file.peek() == '|') {
-                this->in_file >> this->next_char;
+                this->in_file >> this->cur_char;
                 Token special_token(OROR, "||");
                 return special_token;
             }
@@ -209,7 +242,7 @@ Token Scanner::special_symbol() {
         }
         case '!': {
             if (this->in_file.peek() == '=') {
-                this->in_file >> this->next_char;
+                this->in_file >> this->cur_char;
                 Token special_token(NOTEQ, "!=");
                 return special_token;
             }
@@ -220,7 +253,7 @@ Token Scanner::special_symbol() {
         }
         case '=': {
             if (this->in_file.peek() == '=') {
-                this->in_file >> this->next_char;
+                this->in_file >> this->cur_char;
                 Token special_token(EQ, "==");
                 return special_token;
             }
@@ -231,12 +264,12 @@ Token Scanner::special_symbol() {
         }
         case '<': {
             if (this->in_file.peek() == '<') {
-                this->in_file >> this->next_char;
+                this->in_file >> this->cur_char;
                 Token special_token(SHL_OP, "<<");
                 return special_token;
             }
             else if (this->in_file.peek() == '=') {
-                this->in_file >> this->next_char;
+                this->in_file >> this->cur_char;
                 Token special_token(LTEQ, "<=");
                 return special_token;
             }
@@ -247,12 +280,12 @@ Token Scanner::special_symbol() {
         }
         case '>': {
             if (this->in_file.peek() == '>') {
-                this->in_file >> this->next_char;
+                this->in_file >> this->cur_char;
                 Token special_token(SHR_OP, ">>");
                 return special_token;
             }
             else if (this->in_file.peek() == '=') {
-                this->in_file >> this->next_char;
+                this->in_file >> this->cur_char;
                 Token special_token(GTEQ, ">=");
                 return special_token;
             }
@@ -271,17 +304,18 @@ Token Scanner::special_symbol() {
     }
 }
 
+// Main scan function that wraps the previous three functions
 void Scanner::scan() {
-    while(this->in_file >> this->next_char) {
+    while(this->in_file >> this->cur_char) {
 
-        if (isalpha(this->next_char)) {
-            this->tokens.push_back(this->read_string());
+        if (isalpha(this->cur_char)) {
+            this->out_vector->push_back(this->read_string());
         }
 
-        else if (isdigit(this->next_char)) {
-            this->tokens.push_back(this->read_number());
+        else if (isdigit(this->cur_char)) {
+            this->out_vector->push_back(this->read_number());
         }
 
-        else {this->tokens.push_back(this->special_symbol());}
+        else {this->out_vector->push_back(this->read_special_symbol());}
     }
 }

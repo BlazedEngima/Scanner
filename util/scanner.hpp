@@ -6,6 +6,7 @@
 #include <vector>
 #include <fstream>
 
+// Tokens
 enum token_list {
     ID, INT_NUM, LBRACE, RBRACE, LSQUARE, RSQUARE,
     LPAR, RPAR, SEMI, PLUS, MINUS, MUL_OP, DIV_OP,
@@ -16,6 +17,7 @@ enum token_list {
 
 };
 
+// Token struct object
 typedef struct Token {
     std::string value;
     std::string lexeme;
@@ -29,16 +31,18 @@ typedef struct Token {
 
 } Token;
 
+// Scanner class
 class Scanner {
     private:
-        std::ifstream in_file;
-        char next_char;
-        std::vector<Token> tokens;
-        std::string char_buffer;
+        std::ifstream in_file; // input file
+        std::vector<Token> *out_vector; // pointer to output vector;
+        char cur_char; // current character pointer
+        std::string char_buffer; // character buffer to analyze tokens
 
+        // Member functions
         Token read_number();
         Token read_string();
-        Token special_symbol();
+        Token read_special_symbol();
 
     public:
         // Ban copying and assignment
@@ -53,7 +57,10 @@ class Scanner {
         void print(std::string out_file);
 
         // Constructor
-        Scanner(std::string file_name);
+        Scanner(std::string file_name, std::vector<Token> *out_vector);
+
+        // Destructor
+        ~Scanner();
 };
 
 #endif
