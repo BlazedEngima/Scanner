@@ -2,8 +2,8 @@
 #define scanner_h
 
 #include <iostream>
+#include <string>
 #include <vector>
-#include <unordered_map>
 #include <fstream>
 
 typedef enum Tokens {
@@ -23,7 +23,6 @@ class Scanner {
         std::vector<Tokens> tokens;
         std::string char_buffer;
 
-        Tokens read_int();
         Tokens read_string();
         Tokens special_symbol();
 
@@ -40,10 +39,6 @@ class Scanner {
 
         // Constructor
         Scanner(std::string file_name);
-
-        // Destructor
-        // ~Scanner();
-
 };
 
 #endif
