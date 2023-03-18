@@ -23,6 +23,7 @@ class Scanner {
         std::vector<Tokens> tokens;
         std::string char_buffer;
 
+        Tokens read_number();
         Tokens read_string();
         Tokens special_symbol();
 
@@ -36,6 +37,7 @@ class Scanner {
 
         // Prints out token vector
         void print();
+        void print(std::string out_file);
 
         // Constructor
         Scanner(std::string file_name);

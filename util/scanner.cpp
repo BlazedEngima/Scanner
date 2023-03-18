@@ -72,6 +72,39 @@ void Scanner::print() {
     }
 }
 
+void Scanner::print(std::string file_name) {
+    std::ofstream out_file;
+
+    try {
+        out_file.open(file_name, std::ios::out);
+    }
+    catch(const std::exception& e) {
+        std::cout << "Error, unable to open file" << std::endl;
+        std::cerr << e.what() << '\n';
+    }
+    
+    for (int i = 0; i < this->tokens.size(); i++) {
+        if (i == this->tokens.size() - 1) {
+            out_file << "Token: " << this->tokens[i];
+            return;
+        }
+        out_file << "Token: " << this->tokens[i] << std::endl;
+    }
+
+}
+
+Tokens Scanner::read_number() {
+    this->char_buffer += this->next_char;
+
+    while (isdigit(this->in_file.peek())) {
+        this->in_file >> this->next_char;
+        this->char_buffer += this->next_char;
+    }
+
+    this->char_buffer = "";
+    return INT_NUM;
+}
+
 Tokens Scanner::read_string() {
     this->char_buffer += this->next_char;
 
@@ -206,7 +239,7 @@ void Scanner::scan() {
         }
 
         else if (isdigit(this->next_char)) {
-            this->tokens.push_back(INT_NUM);
+            this->tokens.push_back(this->read_number());
         }
 
         else {this->tokens.push_back(this->special_symbol());}
