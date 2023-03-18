@@ -6,7 +6,7 @@
 #include <vector>
 #include <fstream>
 
-typedef enum Tokens {
+enum token_list {
     ID, INT_NUM, LBRACE, RBRACE, LSQUARE, RSQUARE,
     LPAR, RPAR, SEMI, PLUS, MINUS, MUL_OP, DIV_OP,
     AND_OP, OR_OP, NOT_OP, ASSIGN, LT, GT, SHL_OP,
@@ -14,18 +14,31 @@ typedef enum Tokens {
     INT, MAIN, VOID, BREAK, DO, ELSE, IF, WHILE,
     RETURN, READ, WRITE
 
-} token;
+};
+
+typedef struct Token {
+    std::string value;
+    std::string lexeme;
+    token_list token_type;
+    
+    Token(token_list token_type, std::string lexeme, std::string value = "") {
+        this->value = value;
+        this->lexeme = lexeme;
+        this->token_type = token_type;
+    }
+
+} Token;
 
 class Scanner {
     private:
         std::ifstream in_file;
         char next_char;
-        std::vector<Tokens> tokens;
+        std::vector<Token> tokens;
         std::string char_buffer;
 
-        Tokens read_number();
-        Tokens read_string();
-        Tokens special_symbol();
+        Token read_number();
+        Token read_string();
+        Token special_symbol();
 
     public:
         // Ban copying and assignment

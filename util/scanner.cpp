@@ -6,7 +6,7 @@ std::vector<std::string> reserved_words {
     "return", "scanf", "printf"
 };
 
-std::ostream & operator<<(std::ostream& out, const Tokens token) {
+std::ostream & operator<<(std::ostream& out, const token_list token) {
     const char* idx = 0;
 
     #define process_token(p) case p: idx = #p; break;
@@ -68,7 +68,7 @@ Scanner::Scanner(std::string file_name) {
 
 void Scanner::print() {
     for (auto & elem: this->tokens) {
-        std::cout << "Token: " << elem << std::endl;
+        std::cout << "Token: " << elem.token_type << "\t" << "Value: " << elem.value << std::endl;
     }
 }
 
@@ -85,15 +85,15 @@ void Scanner::print(std::string file_name) {
     
     for (int i = 0; i < this->tokens.size(); i++) {
         if (i == this->tokens.size() - 1) {
-            out_file << "Token: " << this->tokens[i];
+            out_file << "Token: " << this->tokens[i].token_type;
             return;
         }
-        out_file << "Token: " << this->tokens[i] << std::endl;
+        out_file << "Token: " << this->tokens[i].token_type << std::endl;
     }
 
 }
 
-Tokens Scanner::read_number() {
+Token Scanner::read_number() {
     this->char_buffer += this->next_char;
 
     while (isdigit(this->in_file.peek())) {
@@ -101,13 +101,14 @@ Tokens Scanner::read_number() {
         this->char_buffer += this->next_char;
     }
 
+    Token int_token(INT_NUM, char_buffer, char_buffer);
     this->char_buffer = "";
-    return INT_NUM;
+    return int_token;
 }
 
-Tokens Scanner::read_string() {
+Token Scanner::read_string() {
     this->char_buffer += this->next_char;
-
+    
     while (isalnum(this->in_file.peek()) || this->in_file.peek() == '_') {
         this->in_file >> this->next_char;
         this->char_buffer += this->next_char;  
@@ -115,117 +116,156 @@ Tokens Scanner::read_string() {
     
     for (size_t i = 0; i < reserved_words.size(); i++) {
         if (this->char_buffer == reserved_words[i]) {
+            Token reserved_word_token(static_cast<token_list>(28 + i), char_buffer);
             this->char_buffer = "";
-            return static_cast<Tokens>(28 + i);
+            return reserved_word_token;
         }
     }
     
+    Token id_token(ID, char_buffer, char_buffer);
     this->char_buffer = "";
 
-    return ID;
+    return id_token;
 }
 
-Tokens Scanner::special_symbol() {
+Token Scanner::special_symbol() {
     switch (this->next_char) {
-        case '{':
-            return LBRACE;
+        case '{': {
+            Token special_token(LBRACE, "{");
+            return special_token;
             break;
-        case '}':
-            return RBRACE;
+        }
+        case '}': {
+            Token special_token(RBRACE, "}");
+            return special_token;
             break;
-        case '[':
-            return LSQUARE;
+        }
+        case '[': {
+            Token special_token(LSQUARE, "[");
+            return special_token;
             break;
-        case ']':
-            return RSQUARE;
+        }
+        case ']': {
+            Token special_token(RSQUARE, "]");
+            return special_token;
             break;
-        case '(':
-            return LPAR;
+        }
+        case '(': {
+            Token special_token(LPAR, "(");
+            return special_token;
             break;
-        case ')':
-            return RPAR;
+        }
+        case ')': {
+            Token special_token(RPAR, ")");
+            return special_token;
             break;
-        case ';':
-            return SEMI;
+        }
+        case ';': {
+            Token special_token(SEMI, ";");
+            return special_token;
             break;
-        case '+':
-            return PLUS;
+        }
+        case '+': {
+            Token special_token(PLUS, "+");
+            return special_token;
             break;
-        case '-':
-            return MINUS;
+        }
+        case '-': {
+            Token special_token(MINUS, "-");
+            return special_token;
             break;
-        case '*':
-            return MUL_OP;
+        }
+        case '*': {
+            Token special_token(MUL_OP, "*");
+            return special_token;
             break;
-        case '/':
-            return DIV_OP;
+        }
+        case '/': {
+            Token special_token(DIV_OP, "/");
+            return special_token;
             break;
+        }
         case '&': {
             if (this->in_file.peek() == '&') {
                 this->in_file >> this->next_char;
-                return ANDAND;
+                Token special_token(ANDAND, "&&");
+                return special_token;
             }
 
-            return AND_OP;
+            Token special_token(AND_OP, "&");
+            return special_token;
             break;
         }
         case '|': {
             if (this->in_file.peek() == '|') {
                 this->in_file >> this->next_char;
-                return OROR;
+                Token special_token(OROR, "||");
+                return special_token;
             }
 
-            return OR_OP;
+            Token special_token(OR_OP, "|");
+            return special_token;
             break;
         }
         case '!': {
             if (this->in_file.peek() == '=') {
                 this->in_file >> this->next_char;
-                return NOTEQ;
+                Token special_token(NOTEQ, "!=");
+                return special_token;
             }
 
-            return NOT_OP;
+            Token special_token(NOT_OP, "!");
+            return special_token;
             break;
         }
         case '=': {
             if (this->in_file.peek() == '=') {
                 this->in_file >> this->next_char;
-                return EQ;
+                Token special_token(EQ, "==");
+                return special_token;
             }
 
-            return ASSIGN;
+            Token special_token(ASSIGN, "=");
+            return special_token;
             break;
         }
         case '<': {
             if (this->in_file.peek() == '<') {
                 this->in_file >> this->next_char;
-                return SHL_OP;
+                Token special_token(SHL_OP, "<<");
+                return special_token;
             }
             else if (this->in_file.peek() == '=') {
                 this->in_file >> this->next_char;
-                return LTEQ;
+                Token special_token(LTEQ, "<=");
+                return special_token;
             }
 
-            return LT;
+            Token special_token(LT, "<");
+            return special_token;
             break;
         }
         case '>': {
             if (this->in_file.peek() == '>') {
                 this->in_file >> this->next_char;
-                return SHR_OP;
+                Token special_token(SHR_OP, ">>");
+                return special_token;
             }
             else if (this->in_file.peek() == '=') {
                 this->in_file >> this->next_char;
-                return GTEQ;
+                Token special_token(GTEQ, ">=");
+                return special_token;
             }
 
-            return GT;
+            Token special_token(GT, ">");
+            return special_token;
             break;
         }
-        case ',':
-            return COMMA;
+        case ',': {
+            Token special_token(COMMA, ",");
+            return special_token;
             break;
-        
+        }
         default:
             break;
     }
