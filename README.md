@@ -7,12 +7,14 @@ C++.
 
 The NFA was designed taking into consideration of tokens and language of the simplified C language.
 ![[NFA.png]](https://imgur.com/o9fpEcG.png)
+
 This is the rough NFA that detects for tokens for the simplified C language. Do note that the NFA is not implemented/present in code. It is only used to guide the creation of the DFA which is used.
 
 ## DFA Design
 
 The DFA was designed after getting the rough NFA.
 ![[DFA.png]](https://imgur.com/dUNt9E2.png)
+
 This is what the rough DFA looks like. This DFA is what is implicitly hardcoded into the scanner.
 
 ## Scanner Design
