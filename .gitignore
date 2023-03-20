@@ -1,6 +1,8 @@
 # Prerequisites
 *.d
 .vscode
+scanner
+output
 
 # Compiled Object files
 *.slo
