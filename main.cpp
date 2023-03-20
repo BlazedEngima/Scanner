@@ -15,17 +15,17 @@ int main(int argc, char const *argv[]) {
         scanner.scan();
         scanner.print();
     } 
-    // Writes the output tokens to file
+    // Writes the output tokens to file (made for debugging and testing)
     else {
         // Make result directory if it doesnt exist
-        const char *output_dir = "./testcases/result";
+        const char *output_dir = "./output";
         struct stat sb;
 
         if (stat(output_dir, &sb) != 0)
             mkdir(output_dir, 0777);
         
         // Write output files to output directory
-        std::string output_file = "./testcases/result/ans";
+        std::string output_file = "./output/ans";
         for (int i = 1; i <= argc - 1; i++) {
             Scanner scanner(argv[i], &tokens);
             scanner.scan();
