@@ -300,6 +300,8 @@ Token Scanner::read_special_symbol() {
             break;
         }
         default:
+            Token special_token(ERROR, std::to_string(this->cur_char));
+            return special_token;
             break;
     }
 }
