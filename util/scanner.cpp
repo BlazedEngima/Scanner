@@ -8,55 +8,61 @@ std::vector<std::string> reserved_words {
 };
 
 // Overloading << operator so it can print out the enum type token_list
-std::ostream & operator<<(std::ostream& out, const token_list token) {
-    const char* idx = 0;
+// std::ostream & operator<<(std::ostream& out, const token_list token) {
+//     const char* idx = 0;
 
-    #define process_token(p) case p: idx = #p; break;
-    switch (token) {
-        process_token(ID);
-        process_token(INT_NUM);
-        process_token(LBRACE);
-        process_token(RBRACE);
-        process_token(LSQUARE);
-        process_token(RSQUARE);
-        process_token(LPAR);
-        process_token(RPAR);
-        process_token(SEMI);
-        process_token(PLUS);
-        process_token(MINUS);
-        process_token(MUL_OP);
-        process_token(DIV_OP);
-        process_token(AND_OP);
-        process_token(OR_OP);
-        process_token(NOT_OP);
-        process_token(ASSIGN);
-        process_token(LT);
-        process_token(GT);
-        process_token(SHL_OP);
-        process_token(SHR_OP);
-        process_token(EQ);
-        process_token(NOTEQ);
-        process_token(LTEQ);
-        process_token(GTEQ);
-        process_token(ANDAND);
-        process_token(OROR);
-        process_token(COMMA);
-        process_token(INT);
-        process_token(MAIN);
-        process_token(VOID);
-        process_token(BREAK);
-        process_token(DO);
-        process_token(ELSE);
-        process_token(IF);
-        process_token(WHILE);
-        process_token(RETURN);
-        process_token(READ);
-        process_token(WRITE);
-    }
-    #undef process_token
+//     #define process_token(p) case p: idx = #p; break;
+//     switch (token) {
+//         process_token(ID);
+//         process_token(INT_NUM);
+//         process_token(LBRACE);
+//         process_token(RBRACE);
+//         process_token(LSQUARE);
+//         process_token(RSQUARE);
+//         process_token(LPAR);
+//         process_token(RPAR);
+//         process_token(SEMI);
+//         process_token(PLUS);
+//         process_token(MINUS);
+//         process_token(MUL_OP);
+//         process_token(DIV_OP);
+//         process_token(AND_OP);
+//         process_token(OR_OP);
+//         process_token(NOT_OP);
+//         process_token(ASSIGN);
+//         process_token(LT);
+//         process_token(GT);
+//         process_token(SHL_OP);
+//         process_token(SHR_OP);
+//         process_token(EQ);
+//         process_token(NOTEQ);
+//         process_token(LTEQ);
+//         process_token(GTEQ);
+//         process_token(ANDAND);
+//         process_token(OROR);
+//         process_token(COMMA);
+//         process_token(INT);
+//         process_token(MAIN);
+//         process_token(VOID);
+//         process_token(BREAK);
+//         process_token(DO);
+//         process_token(ELSE);
+//         process_token(IF);
+//         process_token(WHILE);
+//         process_token(RETURN);
+//         process_token(READ);
+//         process_token(WRITE);
+//         process_token(_EOF);
+//         process_token(S);
+//         process_token(E);
+//         process_token(T);
+//         /* Test cases */
 
-    return out << idx;
-}
+//     }
+//     #undef process_token
+
+//     return out << idx;
+// }
 
 // Constructor for Scanner object, opens file
 Scanner::Scanner(std::string file_name, std::vector<Token> *out_vector) {
@@ -78,7 +84,7 @@ Scanner::~Scanner() {
 // Print function to print to std::cout
 void Scanner::print() {
     for (auto & elem: *(this->out_vector)) {
-        std::cout << "Token: " << elem.token_type << std::endl;
+        std::cout << "Token: " << elem << std::endl;
     }
 }
 
@@ -98,10 +104,10 @@ void Scanner::print(std::string file_name) {
     for (int i = 0; i < this->out_vector->size(); i++) {
         // If last token, ignore adding '\n' 
         if (i == this->out_vector->size() - 1) {
-            out_file << "Token: " << this->out_vector->at(i).token_type;
+            out_file << "Token: " << this->out_vector->at(i);
             break;
         }
-        out_file << "Token: " << this->out_vector->at(i).token_type << std::endl;
+        out_file << "Token: " << this->out_vector->at(i) << std::endl;
     }
 
     out_file.close();
