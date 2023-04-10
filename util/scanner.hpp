@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <unordered_set>
 
 // Tokens
 enum token_list {
@@ -28,8 +29,16 @@ enum token_list {
 
     /* Testing */
 
-
 };
+
+static std::unordered_set<token_list> terminal_tokens ( {
+    ID, INT_NUM, LBRACE, RBRACE, LSQUARE, RSQUARE,
+    LPAR, RPAR, SEMI, PLUS, MINUS, MUL_OP, DIV_OP,
+    AND_OP, OR_OP, NOT_OP, ASSIGN, LT, GT, SHL_OP,
+    SHR_OP, EQ, NOTEQ, LTEQ, GTEQ, ANDAND, OROR, COMMA,
+    INT, MAIN, VOID, BREAK, DO, ELSE, IF, WHILE,
+    RETURN, READ, WRITE, _EOF, _NULL, b, a, d, g, h
+} );
 
 // Token struct object
 typedef struct Token {
@@ -42,14 +51,24 @@ typedef struct Token {
         this->value = value;
         this->lexeme = lexeme;
         this->token_type = token_type;
-        this->isTerminal = true;
+
+        if (terminal_tokens.find(token_type) != terminal_tokens.end())
+            this->isTerminal = true;
+        
+        else 
+            this->isTerminal = false;
     }
 
     Token(token_list token_type) {
         this->value = "";
         this->lexeme = "";
         this->token_type = token_type;
-        this->isTerminal = false;
+
+        if (terminal_tokens.find(token_type) != terminal_tokens.end())
+            this->isTerminal = true;
+        
+        else 
+            this->isTerminal = false;
     }
 
     Token() {

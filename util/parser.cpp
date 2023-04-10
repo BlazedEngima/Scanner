@@ -1,15 +1,23 @@
 #include "parser.hpp"
 
-Rule::Rule(Token head, Tail tail, Lookahead lookahead) {
-    this->head = head;
+Rule::Rule(Tail tail) {
+    this->tail = tail;
+    this->pos = 0;
+    this->num_tail = tail.size();
+
+    Lookahead empty_set({Token()});
+
+    this->lookahead = empty_set;
+}
+
+Rule::Rule(Tail tail, Lookahead lookahead) {
     this->tail = tail;
     this->pos = 0;
     this->num_tail = tail.size();
     this->lookahead = lookahead;
 }
 
-Rule::Rule(Token head, Tail tail, int pos, Lookahead lookahead) {
-    this->head = head;
+Rule::Rule(Tail tail, int pos, Lookahead lookahead) {
     this->tail = tail;
     this->pos = pos;
     this->num_tail = tail.size();
@@ -18,7 +26,6 @@ Rule::Rule(Token head, Tail tail, int pos, Lookahead lookahead) {
 
 void Rule::print_rule(void) {
 
-    std::cout << this->head << "\t: ";
     for (size_t i = 0; i < num_tail; i++) {
         if (i == pos) std::cout << ". ";
         std::cout << this->tail[i] << " ";
@@ -27,7 +34,6 @@ void Rule::print_rule(void) {
     for (auto elem : this->lookahead)
         std::cout << '{' << elem << " " << '}';
 
-    std::cout << std::endl; 
 }
 
 bool contains_zero(Lookahead set) {
@@ -35,23 +41,23 @@ bool contains_zero(Lookahead set) {
     return !(set.count(Null) == 0);
 }
 
-bool check_zero(Grammar &grammar, Token_Set &visited, Token token) {
+bool check_zero(const Grammar &grammar, Token_Set &visited, Token token) {
     std::vector<Token> has_zero;
-    Token Null = Token();
+    Token null = Token();
 
-    if (token.isTerminal)
+    if (token.isTerminal || token == null)
         return false;
     
-    for (auto item : grammar[token]) {
-        if (visited.find(item.get_first_tail()) != visited.end())
+    for (auto items : grammar.at(token)) {
+        if (visited.find(items.get_first_tail()) != visited.end())
             continue;
 
-        if (item.get_first_tail() == Null)
+        if (items.get_first_tail() == null)
             return true;
 
-        if (!(item.get_first_tail().isTerminal)) {
+        if (!(items.get_first_tail().isTerminal)) {
             visited.insert(token);
-            return check_zero(grammar, visited, item.get_first_tail());
+            return check_zero(grammar, visited, items.get_first_tail());
         }
     }
     return false;
@@ -100,21 +106,23 @@ bool check_zero(Grammar &grammar, Token_Set &visited, Token token) {
     
 // }
 
-Lookahead get_first_set(Grammar &grammar, const Token token, int idx) {
+Lookahead get_first_set(const Grammar &grammar, Token token, int idx) {
     Lookahead first_set;
+    Token null = Token();
 
     // Terminating condition in recursion
-    if (token.isTerminal) {
+    if (token.isTerminal || token == null) {
         first_set.insert(token);
         return first_set;   
     }
 
-    std::vector<Rule> rules = grammar[token];
+    std::vector<Rule> rules = grammar.at(token);
     Token_Set zero_set;
-    Token null = Token();
 
     // Check if the current token contains the null token
-    if (check_zero(grammar, zero_set, token)) first_set.insert(null);
+    if (check_zero(grammar, zero_set, token)) {
+        first_set.insert(null);
+    }
 
     bool all_empty = true;
 
@@ -134,42 +142,17 @@ Lookahead get_first_set(Grammar &grammar, const Token token, int idx) {
                 break;
             }
         }
-
-        // if (next_token == token) {
-        //     if (!visited.count(next_token)) {
-        //         visited.insert(token);
-        //         Lookahead temp = get_first_set(grammar, visited, next_token);
-
-        //         if (temp.count(null) == 0)
-        //             first_set.insert(temp.begin(), temp.end());
-
-        //         else {
-        //             if (!left_token_null)
-        //                 first_set.insert(null);
-        //         }
-        //     }
         
-        if (idx < prod_rule.get_tail().size() && next_token != token) {
+        if (idx < prod_rule.get_length() && next_token != token) {
             Lookahead temp = get_first_set(grammar, next_token, idx);
             
             if (left_token_null)
                 temp.erase(null);
 
             first_set.insert(temp.begin(), temp.end());
-
-            // else {
-            //     // std::cout << "Test" << std::endl;
-            //     if (!left_token_null)
-            //         first_set.insert(null);
-                   
-            //     // temp.erase(Token());
-            //     // Token next_next_token = prod_rule.get_tail()[i + 1];
-            //     // // std::cout << next_next_token << std::endl;
-            //     // temp = get_first_set(grammar, visited, next_next_token);
-            // }
         }
 
-        if (left_token_null && idx + 1 < prod_rule.get_tail().size() && next_token != token) {
+        if (left_token_null && idx + 1 < prod_rule.get_length() && next_token != token) {
             Token next_next_token = prod_rule.get_tail()[idx + 1];
             Lookahead temp = get_first_set(grammar, next_next_token, idx);
 
@@ -187,58 +170,37 @@ Lookahead get_first_set(Grammar &grammar, const Token token, int idx) {
     return first_set;
 }
 
-// Lookahead get_first_set(State &grammar, Lookahead &visited, Token token) {
-//     Lookahead first_set;
-//     visited.insert(token);
+// State closure(Rule rule, Lookahead &visited, State grammar) {
+//     State closure_set;
 
+//     Token head = rule.get_head();
 //     for (auto elem : grammar) {
-//         if (elem.get_head() != token) 
+//         if (elem.get_head() != head)
 //             continue;
 
 //         Rule prod_rule = elem;
 //         Token next_token = elem.get_first_tail();
 
-//         // std::cout << "Current token: " << token << '\t';
-//         // std::cout << "Next token: " << next_token << '\t';
-//         // std::cout << "Terminal: " << next_token.isTerminal << std::endl;
-        
-//         if (next_token.isTerminal)
-//             first_set.insert(next_token);
-
-//         if (next_token == token) {
-//             if (!visited.count(next_token)) {
-//                 Lookahead temp = get_first_set(grammar, visited, next_token);
-//                 first_set.insert(temp.begin(), temp.end());
-//             }
-//             // if (prod_rule.get_tail().size() > 1) {
-//             //     Lookahead temp = get_first_set(grammar, visited, prod_rule.get_tail()[1]);
-//             //     first_set.insert(temp.begin(), temp.end());
-//             // }
-
-//         } else {
-//             Lookahead temp = get_first_set(grammar, visited, next_token);
-//             first_set.insert(temp.begin(), temp.end());
-//         }
+//         closure_set.push_back(elem);
 //     }
 
-//     return first_set;
+//     return closure_set;
 // }
 
-State closure(Rule rule, Lookahead &visited, State grammar) {
-    State closure_set;
+void print_grammar(Grammar &grammar) {
+    for (auto &pair : grammar) {
+        std::cout << pair.first << "\t: ";
 
-    Token head = rule.get_head();
-    for (auto elem : grammar) {
-        if (elem.get_head() != head)
-            continue;
+        for (size_t i = 0; i < pair.second.size(); i++) {
+            pair.second[i].print_rule();
 
-        Rule prod_rule = elem;
-        Token next_token = elem.get_first_tail();
+            if (i == pair.second.size() - 1)
+                break;
 
-        closure_set.push_back(elem);
+            std::cout << " | ";
+        }
+        std::cout << std::endl;
     }
-
-    return closure_set;
 }
 
 Parser::Parser() {
