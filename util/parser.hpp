@@ -59,6 +59,15 @@ class Rule {
             this->num_tail = rhs.num_tail;
             this->lookahead = rhs.lookahead;
         }
+
+        Rule operator+(int const &rhs) {
+            Rule new_rule;
+            new_rule = *this;
+            new_rule.pos = new_rule.pos + rhs;
+
+            return new_rule;
+        }
+        
         // inline bool operator<(const Rule &rhs) const {return this->head.token_type < rhs.head.token_type;}
         inline bool operator==(const Rule &rhs) const {return this->head == rhs.head && this->tail == rhs.tail;}
         // ~Rule();
@@ -89,7 +98,7 @@ class Parser {
 
 State closure(Rule rule, State grammar);
 // Lookahead get_first_set(State &grammar, Lookahead &visited, Token token);
-Lookahead get_first_set(Grammar &grammar, Token_Set &visited, Token token);
+Lookahead get_first_set(Grammar &grammar, const Token token, int idx);
 
 std::vector<std::vector<Rule>> gen_table (void);
 

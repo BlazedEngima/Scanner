@@ -53,7 +53,7 @@ typedef struct Token {
     }
 
     Token() {
-        this->isTerminal = true;
+        this->isTerminal = false;
         this->token_type = _NULL;
         this->value = "";
         this->lexeme = "";

@@ -2,12 +2,12 @@
 #include <unordered_set>
 
 int main(int argc, char const *argv[]) {
-    // Token S_1(S);
-    // Token E_1(E);
-    // Token E_2(EE);
-    // Token T_1(T);
-    // Token T_2(TT);
-    // Token F_1(F);
+    Token S_1(S);
+    Token E_1(E);
+    Token E_2(EE);
+    Token T_1(T);
+    Token T_2(TT);
+    Token F_1(F);
 
     Token S_token(S);
     Token A_token(A);
@@ -17,12 +17,12 @@ int main(int argc, char const *argv[]) {
     Token _null_token = Token();
     Lookahead null_token {_null_token};
     
-    // Token plus(PLUS, "+");
-    // Token mul(MUL_OP, "*");
-    // Token lpar(LPAR, "(");
-    // Token rpar(RPAR, ")");
-    // Token id_token(ID, "char_buffer", "char_buffer");
-    // Token end(_EOF);
+    Token plus(PLUS, "+");
+    Token mul(MUL_OP, "*");
+    Token lpar(LPAR, "(");
+    Token rpar(RPAR, ")");
+    Token id_token(ID, "char_buffer", "char_buffer");
+    Token end(_EOF);
 
     Token small_a_token(a, "a");
     Token small_b_token(b, "a");
@@ -30,20 +30,20 @@ int main(int argc, char const *argv[]) {
     Token small_g_token(g, "a");
     Token small_h_token(h, "a");
 
-    // Tail S_rule {E_1, end};
-    // Tail E_rule {E_1, plus, T_1};
-    // Tail E_rule_2 {T_1};
-    // Tail T_rule {id_token};
-    // Tail T_rule_2 {lpar, E, rpar};
+    Tail S_rule {E_1, end};
+    Tail E_rule {E_1, plus, T_1};
+    Tail E_rule_2 {T_1};
+    Tail T_rule {id_token};
+    Tail T_rule_2 {lpar, E, rpar};
 
-    // Tail E_1_tail {T_1, E_2};
-    // Tail E_2_tail {plus, T_1, E_2};
-    // Tail E_2_tail_2 {_null_token};
-    // Tail T_1_tail {F_1, T_2};
-    // Tail T_2_tail {mul, F_1, T_2};
-    // Tail T_2_tail_2 {_null_token};
-    // Tail F_tail {lpar, E_1, rpar};
-    // Tail F_tail_2 {id_token};
+    Tail E_1_tail {T_1, E_2};
+    Tail E_2_tail {plus, T_1, E_2};
+    Tail E_2_tail_2 {_null_token};
+    Tail T_1_tail {F_1, T_2};
+    Tail T_2_tail {mul, F_1, T_2};
+    Tail T_2_tail_2 {_null_token};
+    Tail F_tail {lpar, E_1, rpar};
+    Tail F_tail_2 {id_token};
 
     Tail S_token_tail_1 {A_token, C_token, B_token};
     Tail S_token_tail_2 {C_token, small_b_token, small_b_token};
@@ -55,15 +55,15 @@ int main(int argc, char const *argv[]) {
     Tail C_token_tail_1 {small_h_token};
     Tail C_token_tail_2 {_null_token};
 
-    // Rules S;
-    // Rules E;
-    // Rules T;
+    Rules S;
+    Rules E;
+    Rules T;
 
-    // Rules E_1_rule;
-    // Rules E_2_rule;
-    // Rules T_1_rule;
-    // Rules T_2_rule;
-    // Rules F_rule;
+    Rules E_1_rule;
+    Rules E_2_rule;
+    Rules T_1_rule;
+    Rules T_2_rule;
+    Rules F_rule;
 
     Rules S_rules;
     Rules A_rules;
@@ -72,18 +72,20 @@ int main(int argc, char const *argv[]) {
 
     // State grammar;
     Grammar _grammar;
+    // Grammar _grammar2;
+    // Grammar _grammar3;
 
-    // Rule _S(S_1, S_rule, null_token);
-    // grammar.push_back(_S);
-    // Rule _E(E_1, E_rule, null_token);
-    // grammar.push_back(_E);
-    // Rule _E2(E_1, E_rule_2, null_token);
-    // grammar.push_back(_E2);
-    // Rule _T(T_1, T_rule, null_token);
-    // grammar.push_back(_T);
-    // Rule _T2(T_1, T_rule_2, null_token);
-    // grammar.push_back(_T2);
+    Rule _S(S_1, S_rule, null_token);
+    Rule _E(E_1, E_rule, null_token);
+    Rule _E2(E_1, E_rule_2, null_token);
+    Rule _T(T_1, T_rule, null_token);
+    Rule _T2(T_1, T_rule_2, null_token);
 
+    S.push_back(_S);
+    E.push_back(_E);
+    E.push_back(_E2);
+    T.push_back(_T);
+    T.push_back(_T2);
     // Rule _E(E_1, E_1_tail, null_token);
     // E_1_rule.push_back(_E);
 
@@ -105,42 +107,42 @@ int main(int argc, char const *argv[]) {
     // F_rule.push_back(_F);
     // F_rule.push_back(_F_2);
 
-    Rule S_rule_1(S_token, S_token_tail_1, null_token);
-    Rule S_rule_2(S_token, S_token_tail_2, null_token);
-    Rule S_rule_3(S_token, S_token_tail_3, null_token);
-    S_rules.push_back(S_rule_1);
-    S_rules.push_back(S_rule_2);
-    S_rules.push_back(S_rule_3);
+    // Rule S_rule_1(S_token, S_token_tail_1, null_token);
+    // Rule S_rule_2(S_token, S_token_tail_2, null_token);
+    // Rule S_rule_3(S_token, S_token_tail_3, null_token);
+    // S_rules.push_back(S_rule_1);
+    // S_rules.push_back(S_rule_2);
+    // S_rules.push_back(S_rule_3);
 
-    Rule A_rule_1(A_token, A_token_tail_1, null_token);
-    Rule A_rule_2(A_token, A_token_tail_2, null_token);
-    A_rules.push_back(A_rule_1);
-    A_rules.push_back(A_rule_2);
+    // Rule A_rule_1(A_token, A_token_tail_1, null_token);
+    // Rule A_rule_2(A_token, A_token_tail_2, null_token);
+    // A_rules.push_back(A_rule_1);
+    // A_rules.push_back(A_rule_2);
 
-    Rule B_rule_1(B_token, B_token_tail_1, null_token);
-    Rule B_rule_2(B_token, B_token_tail_2, null_token);
-    B_rules.push_back(B_rule_1);
-    B_rules.push_back(B_rule_2);
+    // Rule B_rule_1(B_token, B_token_tail_1, null_token);
+    // Rule B_rule_2(B_token, B_token_tail_2, null_token);
+    // B_rules.push_back(B_rule_1);
+    // B_rules.push_back(B_rule_2);
 
-    Rule C_rule_1(C_token, C_token_tail_1, null_token);
-    Rule C_rule_2(C_token, C_token_tail_2, null_token);
-    C_rules.push_back(C_rule_1);
-    C_rules.push_back(C_rule_2);
+    // Rule C_rule_1(C_token, C_token_tail_1, null_token);
+    // Rule C_rule_2(C_token, C_token_tail_2, null_token);
+    // C_rules.push_back(C_rule_1);
+    // C_rules.push_back(C_rule_2);
 
-    // grammar[S_1] = S;
-    // grammar[E_1] = E;
-    // grammar[T_1] = T;
+    _grammar[S_1] = S;
+    _grammar[E_1] = E;
+    _grammar[T_1] = T;
 
-    // _grammar[E_1] = E_1_rule;
-    // _grammar[E_2] = E_2_rule;
-    // _grammar[T_1] = T_1_rule;
-    // _grammar[T_2] = T_2_rule;
-    // _grammar[F] = F_rule;
+    // _grammar2[E_1] = E_1_rule;
+    // _grammar2[E_2] = E_2_rule;
+    // _grammar2[T_1] = T_1_rule;
+    // _grammar2[T_2] = T_2_rule;
+    // _grammar2[F_1] = F_rule;
 
-    _grammar[S_token] = S_rules;
-    _grammar[A_token] = A_rules;
-    _grammar[B_token] = B_rules;
-    _grammar[C_token] = C_rules;
+    // _grammar[S_token] = S_rules;
+    // _grammar[A_token] = A_rules;
+    // _grammar[B_token] = B_rules;
+    // _grammar[C_token] = C_rules;
 
     for (auto const &pair : _grammar) {
         for (auto elem : pair.second)
@@ -155,7 +157,15 @@ int main(int argc, char const *argv[]) {
     Token_Set visited;
     // std::vector<Token> first_set;
 
-    std::set<Token> first_set = get_first_set(_grammar, visited, S_token);
+    // for (auto items : _grammar) {
+    //     std::cout << items.first << '\t';
+
+    //     std::set<Token> first_set = get_first_set(_grammar, items.first, 0);
+    //     for (auto elem : first_set) 
+    //         std::cout << elem << std::endl;
+    // }
+
+    std::set<Token> first_set = get_first_set(_grammar, T_1, 0);
 
     for (auto elem : first_set)
         std::cout << elem << ' ';
