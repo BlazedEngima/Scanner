@@ -37,7 +37,7 @@ static std::unordered_set<token_list> terminal_tokens ( {
     AND_OP, OR_OP, NOT_OP, ASSIGN, LT, GT, SHL_OP,
     SHR_OP, EQ, NOTEQ, LTEQ, GTEQ, ANDAND, OROR, COMMA,
     INT, MAIN, VOID, BREAK, DO, ELSE, IF, WHILE,
-    RETURN, READ, WRITE, _EOF, _NULL, b, a, d, g, h
+    RETURN, READ, WRITE, _EOF, b, a, d, g, h
 } );
 
 // Token struct object
