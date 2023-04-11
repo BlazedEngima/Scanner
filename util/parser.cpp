@@ -153,10 +153,19 @@ bool contains_null(const Grammar &grammar, const Token &token) {
     return false;
 }
 
-void closure(Rule &rule, State &closure_set, const Lookahead_Set &first_set_table, const Grammar &grammar) {
+bool in(const Rule &source_rule, const State &rules) {
+    for (const auto &item : rules) {
+        if (item == source_rule)
+            return true;
+    }
+    return false;
+}
+
+State closure(Rule &rule, const Lookahead_Set &first_set_table, const Grammar &grammar) {
     // head and rule are should be tied together in grammar
     // State closure_set;
     Token null = Token();
+    State state;
 
     // if (closure_set.count(rule.get_head())) {
     //     for (auto &rule : closure_set.at(rule.get_head())) {
@@ -171,20 +180,47 @@ void closure(Rule &rule, State &closure_set, const Lookahead_Set &first_set_tabl
     //     closure_set.insert({rule.get_head(), rule_set});
     // }
 
-    closure_set.push_back(rule);
+    state.push_back(rule);
 
     if (rule.get_next_token().isTerminal ||
         rule.get_next_token() == null ||
         rule.get_next_token().token_type == _EOF
     ) 
-        return;
+        return state;
 
     Lookahead lookahead_set;
 
+    // int i = rule.get_current_pos() + 1;
+    // int lim = rule.get_length();
+
+    // while (i < lim) {
+    //     if (rule[i].isTerminal ||
+    //         rule[i] == null ||
+    //         rule[i].token_type == _EOF
+    //     ) {
+    //         lookahead_set.emplace(rule[i]);
+    //         // all_contain_null = false;
+    //         break;
+    //     } else {
+    //         if (rule[i] == rule.get_head())
+    //             break;
+
+    //         lookahead_set.insert(first_set_table.at(rule[i]).begin(), first_set_table.at(rule[i]).end());
+            
+    //         Lookahead first_set_at_token = first_set_table.at(rule[i]);
+
+    //         if (first_set_at_token.find(null) 
+    //         == first_set_table.at(rule[i]).end()) {
+    //             // all_contain_null = false;
+    //             break;
+    //         }
+    //         i++;
+    //     }
+    // }
     // bool all_contain_null = true;
     for (size_t i = rule.get_current_pos() + 1; i < rule.get_length(); i++) {
         if (rule[i].isTerminal ||
-            // rule[i] == null ||
+            rule[i] == null ||
             rule[i].token_type == _EOF
         ) {
             lookahead_set.emplace(rule[i]);
@@ -201,32 +237,33 @@ void closure(Rule &rule, State &closure_set, const Lookahead_Set &first_set_tabl
         }
     }
 
-    lookahead_set.erase(null);
+    if (lookahead_set.find(null) != lookahead_set.end())
+        lookahead_set.insert(rule.get_lookahead());
 
+    lookahead_set.erase(null);
+    
     if (lookahead_set.empty())
         lookahead_set.insert(rule.get_lookahead());
-    
-    // if (all_contain_null) 
-    //     lookahead_set.insert(rule.get_lookahead().begin(), rule.get_lookahead().end());
-    // if (all_contain_null) {
-    //     lookahead_set.insert(rule.get_lookahead().begin(), rule.get_lookahead().end());
-    // }
+
 
     Rules rules_of_next_closure = grammar.at(rule.get_next_token());
 
-    Rules next_rules_vector;
     for (auto &next_rule : rules_of_next_closure) {
         for (auto &lookahead : lookahead_set) {
-        
-            next_rule.set_lookahead(lookahead);
+            
+            Rule new_rule_copy = Rule(next_rule.get_head(), next_rule.get_tail(), lookahead);
+            // next_rule.set_lookahead(lookahead);
 
-            closure(next_rule, closure_set, first_set_table, grammar);
+            State child_states = closure(new_rule_copy, first_set_table, grammar);
 
+            for (const auto &elem : child_states) {
+                if (!in(elem, state))
+                    state.push_back(elem);
+            }
         }
-        
-        // next_rule.set_lookahead(lookahead_set);
-        // next_rules_vector.push_back(next_rule);
     }
+
+    return state;
 
 }
 

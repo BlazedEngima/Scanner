@@ -118,7 +118,8 @@ int main(int argc, char const *argv[]) {
     // Lookahead lookahead_F({_EOF});
 
     State state_0;
-    closure(starting_F_rule, state_0, first_set_table, grammar);
+    state_0 = closure(starting_F_rule, first_set_table, grammar);
+
     // print_grammar(state_0);
     for (auto &elem : state_0) {
         std::cout << elem.get_head() << " -> ";

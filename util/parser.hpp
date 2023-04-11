@@ -84,7 +84,18 @@ class Rule {
         }
         
         // inline bool operator<(const Rule &rhs) const {return this->head.token_type < rhs.head.token_type;}
-        inline bool operator==(const Rule &rhs) const {return this->tail == rhs.tail && this->lookahead_token == rhs.lookahead_token;}
+        inline bool operator==(const Rule &rhs) const {return this->tail == rhs.tail 
+                                                        && this->lookahead_token == rhs.lookahead_token
+                                                        && this->head == rhs.head
+                                                        && this->pos == rhs.pos
+                                                        && this->lookahead_token == rhs.lookahead_token;
+                                                    }
+        inline bool operator!=(const Rule &rhs) const {return !(this->tail == rhs.tail 
+                                                        && this->lookahead_token == rhs.lookahead_token
+                                                        && this->head == rhs.head
+                                                        && this->pos == rhs.pos
+                                                        && this->lookahead_token == rhs.lookahead_token);
+                                                    }
         Token & operator[](int idx) {
             if (idx >= this->num_tail) {
                 std::cout << "Array index out of bounds" << std::endl;
@@ -111,7 +122,7 @@ class Parser {
 };
 
 bool contains_null(const Grammar &grammar, const Token &token);    
-void closure(Rule &rule, State &closure_set, const Lookahead_Set &first_set_table, const Grammar &grammar);
+State closure(Rule &rule, const Lookahead_Set &first_set_table, const Grammar &grammar);
 Lookahead get_first_set(const Grammar &grammar, Token token, int idx);
 Lookahead_Set get_first_set_table(const Grammar &grammar);
 std::vector<std::vector<Rule>> gen_table (void);
