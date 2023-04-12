@@ -131,27 +131,6 @@ Lookahead_Set get_first_set_table(const Grammar &grammar) {
     return first_set_table;
 }
 
-bool contains_null(const Grammar &grammar, const Token &token) {
-    Token null = Token();
-
-    if (token.isTerminal || token == null || token.token_type == _EOF)
-        return false;
-
-    // std::cout << token << std::endl;
-    // for (auto rule : grammar.at(token)) {
-    //     if (std::find(rule.get_tail().begin(), rule.get_tail().end(), null) != rule.get_tail().end())
-    //         return true;
-    // }
-    for (auto rule : grammar.at(token)) {
-        for (size_t i = 0; i < rule.get_length(); i++) {
-            if (rule[i] == null) {
-                // std::cout << "Test\t" << token << std::endl;
-                return true;
-            }
-        }
-    }
-    return false;
-}
 
 bool in(const Rule &source_rule, const State &rules) {
     for (const auto &item : rules) {
@@ -163,22 +142,8 @@ bool in(const Rule &source_rule, const State &rules) {
 
 State closure(Rule &rule, const Lookahead_Set &first_set_table, const Grammar &grammar) {
     // head and rule are should be tied together in grammar
-    // State closure_set;
     Token null = Token();
     State state;
-
-    // if (closure_set.count(rule.get_head())) {
-    //     for (auto &rule : closure_set.at(rule.get_head())) {
-    //         rule_set.push_back(rule);
-    //     }
-    //     rule_set.push_back(rule);
-    //     auto it = closure_set.find(rule.get_head());
-    //     it->second = rule_set;
-
-    // } else {
-    //     rule_set.push_back(rule);
-    //     closure_set.insert({rule.get_head(), rule_set});
-    // }
 
     state.push_back(rule);
 
@@ -190,48 +155,19 @@ State closure(Rule &rule, const Lookahead_Set &first_set_table, const Grammar &g
 
     Lookahead lookahead_set;
 
-    // int i = rule.get_current_pos() + 1;
-    // int lim = rule.get_length();
 
-    // while (i < lim) {
-    //     if (rule[i].isTerminal ||
-    //         rule[i] == null ||
-    //         rule[i].token_type == _EOF
-    //     ) {
-    //         lookahead_set.emplace(rule[i]);
-    //         // all_contain_null = false;
-    //         break;
-    //     } else {
-    //         if (rule[i] == rule.get_head())
-    //             break;
-
-    //         lookahead_set.insert(first_set_table.at(rule[i]).begin(), first_set_table.at(rule[i]).end());
-            
-    //         Lookahead first_set_at_token = first_set_table.at(rule[i]);
-
-    //         if (first_set_at_token.find(null) 
-    //         == first_set_table.at(rule[i]).end()) {
-    //             // all_contain_null = false;
-    //             break;
-    //         }
-    //         i++;
-    //     }
-    // }
-    // bool all_contain_null = true;
     for (size_t i = rule.get_current_pos() + 1; i < rule.get_length(); i++) {
         if (rule[i].isTerminal ||
             rule[i] == null ||
             rule[i].token_type == _EOF
         ) {
             lookahead_set.emplace(rule[i]);
-            // all_contain_null = false;
             break;
 
         } else {
             lookahead_set.insert(first_set_table.at(rule[i]).begin(), first_set_table.at(rule[i]).end());
             
             if (first_set_table.at(rule[i]).find(null) == first_set_table.at(rule[i]).end()) {
-                // all_contain_null = false;
                 break;
             }
         }
@@ -252,7 +188,6 @@ State closure(Rule &rule, const Lookahead_Set &first_set_table, const Grammar &g
         for (auto &lookahead : lookahead_set) {
             
             Rule new_rule_copy = Rule(next_rule.get_head(), next_rule.get_tail(), lookahead);
-            // next_rule.set_lookahead(lookahead);
 
             State child_states = closure(new_rule_copy, first_set_table, grammar);
 
@@ -264,7 +199,6 @@ State closure(Rule &rule, const Lookahead_Set &first_set_table, const Grammar &g
     }
 
     return state;
-
 }
 
 void print_grammar(Grammar &grammar) {

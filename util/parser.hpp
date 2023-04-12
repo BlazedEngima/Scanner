@@ -35,7 +35,6 @@ typedef std::set<Token> Token_Set;
 typedef std::vector<Rule> Rules;
 typedef std::vector<Rule> State;
 typedef std::unordered_map<Token, Rules, Hash> Grammar;
-// typedef std::unordered_map<Token, Rules, Hash> State;
 
 class Rule {
     private:
@@ -70,17 +69,11 @@ class Rule {
         }
 
         Rule operator+(int const &rhs) {
-            // if (this->pos + rhs >= this->num_tail) {
-            //     std::cout << "Cannot add past length of vector, cancelling add" << std::endl;
-            //     return *this;
-            //     // exit(0);
-            // } else {
-                Rule new_rule;
-                new_rule = *this;
-                new_rule.pos = new_rule.pos + rhs;
+            Rule new_rule;
+            new_rule = *this;
+            new_rule.pos = new_rule.pos + rhs;
 
-                return new_rule;
-            // }
+            return new_rule;
         }
         
         // inline bool operator<(const Rule &rhs) const {return this->head.token_type < rhs.head.token_type;}
@@ -121,7 +114,6 @@ class Parser {
 
 };
 
-bool contains_null(const Grammar &grammar, const Token &token);    
 State closure(Rule &rule, const Lookahead_Set &first_set_table, const Grammar &grammar);
 Lookahead get_first_set(const Grammar &grammar, Token token, int idx);
 Lookahead_Set get_first_set_table(const Grammar &grammar);
