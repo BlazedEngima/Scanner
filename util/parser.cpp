@@ -26,11 +26,15 @@ Rule::Rule(Token head, Tail tail, int pos, Token lookahead_token) {
 
 void Rule::print_rule(void) {
 
+    bool is_at_end = true;
     for (size_t i = 0; i < num_tail; i++) {
-        if (i == pos) std::cout << ". ";
+        if (i == this->pos) {is_at_end = false; std::cout << ". ";}
         std::cout << this->tail[i] << " ";
     }
 
+    if (is_at_end)
+        std::cout << ". ";
+        
     std::cout << "{ " << this->lookahead_token << " }" << std::endl;
 }
 
@@ -155,7 +159,6 @@ State closure(Rule &rule, const Lookahead_Set &first_set_table, const Grammar &g
 
     Lookahead lookahead_set;
 
-
     for (size_t i = rule.get_current_pos() + 1; i < rule.get_length(); i++) {
         if (rule[i].isTerminal ||
             rule[i] == null ||
@@ -201,6 +204,41 @@ State closure(Rule &rule, const Lookahead_Set &first_set_table, const Grammar &g
     return state;
 }
 
+State go_to(const State &current_state, Token input_token, const Lookahead_Set &first_set_table, const Grammar &grammar) {
+
+    Rules rules_to_closure;
+    for (auto rule : current_state) {
+        if (rule.get_next_token() == input_token) {
+            rule = rule + 1;
+            rules_to_closure.push_back(rule);
+        }
+    }
+
+    State output_state;
+    for (auto &elem : rules_to_closure) {
+        State temp = closure(elem, first_set_table, grammar);
+
+        for (const auto &item : temp) {
+            if (!in(item, output_state))
+                output_state.push_back(item);
+        }
+    }
+
+    return output_state;
+}
+
+std::unordered_map<int, std::unordered_map<token_list, instruction>> gen_table(const State &start_state) {
+    int state_no = 0;
+    std::unordered_map<int, std::unordered_map<token_list, instruction>> parse_table;
+    std::unordered_map<token_list, instruction> y_axis;
+
+    std::set<Token> input_tokens;
+
+    for (auto &elem : start_state) {
+        input_tokens.emplace(elem.get_head());
+    }
+}
+
 void print_grammar(Grammar &grammar) {
     for (auto &pair : grammar) {
         std::cout << pair.first << "\t: ";
@@ -228,6 +266,13 @@ void print_first_set_table(Lookahead_Set &first_set_table) {
     }
 }
 
+void print_state(State &state) {
+    for (auto &elem : state) {
+        std::cout << elem.get_head() << " -> ";
+        elem.print_rule();
+    }
+    std::cout << std::endl;
+}
 
 Parser::Parser() {
 

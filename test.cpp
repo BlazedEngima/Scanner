@@ -108,14 +108,19 @@ int main(int argc, char const *argv[]) {
     // print_first_set_table(first_set_table);
     // Lookahead lookahead_F({_EOF});
 
-    State state_0;
-    state_0 = closure(starting_F_rule, first_set_table, grammar);
+    State state_0 = closure(starting_F_rule, first_set_table, grammar);
 
-    for (auto &elem : state_0) {
-        std::cout << elem.get_head() << " -> ";
-        elem.print_rule();
-        std::cout << std::endl;
-    }
+    State state_1 = go_to(state_0, Token(S), first_set_table, grammar);
+
+    print_state(state_1);
+
+    State state_2 = go_to(state_1, Token(_EOF), first_set_table, grammar);
+
+    print_state(state_2);
+
+    State state_3 = go_to(state_0, Token(B), first_set_table, grammar);
+
+    print_state(state_3);
 
     return 0;
 }

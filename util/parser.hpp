@@ -9,7 +9,7 @@
 #include <algorithm>
 
 typedef enum parse_table_instruction_types {
-    shift, reduce, go_to
+    shift, reduce
 
 } instr_type;
 
@@ -50,15 +50,16 @@ class Rule {
         Rule(Token head, Tail tail, int pos, Token lookahead_token);
         Rule() {};
 
-        Token get_head(void) {return this->head;}
-        Tail get_tail(void) {return this->tail;}
-        Token get_first_tail(void) {return this->tail[0];}
-        Token get_lookahead(void) {return this->lookahead_token;}
-        Token get_next_token(void) {return (this->pos >= num_tail) ? Token() : this->tail[pos];}
+        Token get_head(void) const {return this->head;}
+        Tail get_tail(void) const {return this->tail;}
+        Token get_first_tail(void) const {return this->tail[0];}
+        Token get_lookahead(void) const {return this->lookahead_token;}
+        Token get_next_token(void) const {return (this->pos >= num_tail) ? Token() : this->tail[pos];}
+        int get_current_pos(void) const {return this->pos;}
+        int get_length(void) const {return this->num_tail;}
+
         void increment_pointer(void) {this->pos++;}
-        int get_current_pos(void) {return this->pos;}
         void set_lookahead(Token lookahead_token) {this->lookahead_token = lookahead_token;}
-        int get_length(void) {return this->num_tail;}
         void print_rule(void);
 
         Rule & operator=(Rule rhs) {
@@ -70,6 +71,13 @@ class Rule {
 
         Rule operator+(int const &rhs) {
             Rule new_rule;
+
+            if (this->pos + rhs > this->num_tail) {
+                new_rule = *this;
+                new_rule.pos = this->num_tail;
+                
+                return new_rule;
+            }
             new_rule = *this;
             new_rule.pos = new_rule.pos + rhs;
 
@@ -117,10 +125,12 @@ class Parser {
 State closure(Rule &rule, const Lookahead_Set &first_set_table, const Grammar &grammar);
 Lookahead get_first_set(const Grammar &grammar, Token token, int idx);
 Lookahead_Set get_first_set_table(const Grammar &grammar);
-std::vector<std::vector<Rule>> gen_table (void);
+State go_to(const State &current_state, Token input_token, const Lookahead_Set &first_set_table, const Grammar &grammar);
+std::unordered_map<int, std::unordered_map<token_list, instruction>> gen_table (void);
 
 void print_grammar(Grammar &grammar);
 void print_first_set_table(Lookahead_Set &first_set_table);
+void print_state(State &state);
 // std::vector<Rule> prod_rules;
 
 
