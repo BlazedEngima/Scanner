@@ -101,15 +101,6 @@ int main(int argc, char const *argv[]) {
     print_grammar(grammar);
     std::cout << std::endl;
 
-    // for (const auto &pair : grammar) {
-    //     std::cout << pair.first << '\t' << "= ";
-    //     std::cout << "{";
-    //     for (const auto& items : get_first_set(grammar, pair.first, 0))
-    //         std::cout << items << " ";
-    //     std::cout << "}";
-    //     std::cout << std::endl;
-    // }
-
     std::cout << std::endl;
 
     Lookahead_Set first_set_table = get_first_set_table(grammar);
@@ -120,13 +111,11 @@ int main(int argc, char const *argv[]) {
     State state_0;
     state_0 = closure(starting_F_rule, first_set_table, grammar);
 
-    // print_grammar(state_0);
     for (auto &elem : state_0) {
         std::cout << elem.get_head() << " -> ";
         elem.print_rule();
         std::cout << std::endl;
     }
-    // for (auto &elem : grammar.begin()->second) {
-    // }
+
     return 0;
 }
